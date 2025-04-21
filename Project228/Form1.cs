@@ -112,6 +112,31 @@ namespace Project228
             }
         }
 
+        private void AutoFillTable5()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["TestDB"].ConnectionString;
+            string selectQuery = "SELECT * FROM MedicalServices";
+
+            using (SqlConnection sqlConnection = new SqlConnection(connectionString))
+            {
+                using (SqlCommand command = new SqlCommand(selectQuery, sqlConnection))
+                {
+                    SqlDataAdapter adapter = new SqlDataAdapter(command);
+                    DataTable dataTable = new DataTable();
+                    try
+                    {
+                        sqlConnection.Open();
+                        adapter.Fill(dataTable);
+                        dataGridView5.DataSource = dataTable;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Помилка при отриманні даних: {ex.Message}");
+                    }
+                }
+            }
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["TestDB"].ConnectionString);
@@ -146,9 +171,11 @@ namespace Project228
 
             dataGridView3.Dock = DockStyle.Fill;
             dataGridView4.Dock = DockStyle.Fill;
+            dataGridView5.Dock = DockStyle.Fill;
 
             AutoFillTable3();
             AutoFillTable4();
+            AutoFillTable5();
 
             comboBox2.Items.Add("Повне ім'я");
             comboBox2.Items.Add("Дата народження");
@@ -174,6 +201,14 @@ namespace Project228
             {
                 comboBox3.SelectedIndex = 0;
             }
+
+            comboBox4.Items.Add("Назва організації");
+            comboBox4.Items.Add("Назва послуги");
+            comboBox4.Items.Add("Вартість");
+            comboBox4.Items.Add("Телефон");
+            comboBox4.Items.Add("ID");
+
+            comboBox4.SelectedIndex = 0;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -514,13 +549,38 @@ namespace Project228
             SqlCommand command = new SqlCommand("INSERT INTO [Patient] (FullName, DateOfBirth, Addres, PhoneNumber, DoctorID) VALUES (@FullName, @DateOfBirth, @Addres, @PhoneNumber, @DoctorID)", sqlConnection);
 
             command.Parameters.AddWithValue("FullName", textBox19.Text);
-            command.Parameters.AddWithValue("DateOfBirth", textBox20.Text);
+
+            if (DateTime.TryParse(textBox20.Text, out DateTime dateOfBirth))
+            {
+                command.Parameters.AddWithValue("@DateOfBirth", dateOfBirth);
+            }
+            else
+            {
+                MessageBox.Show("Неправильний формат дати народження.", "Помилка введення", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             command.Parameters.AddWithValue("Addres", textBox21.Text);
             command.Parameters.AddWithValue("PhoneNumber", textBox22.Text);
             command.Parameters.AddWithValue("DoctorID", textBox23.Text);
 
-            MessageBox.Show(command.ExecuteNonQuery().ToString());
-            AutoFillTable3();
+            try
+            {
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                {
+                    MessageBox.Show("Пацієнта успішно додано!", "Успіх", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    AutoFillTable3();
+                }
+                else
+                {
+                    MessageBox.Show("Не вдалося додати пацієнта.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Виникла помилка при додаванні пацієнта: {ex.Message}", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void button10_Click(object sender, EventArgs e)
@@ -1013,6 +1073,164 @@ namespace Project228
             else
             {
                 AutoFillTable4(); // Припускаємо, що AutoFillTable4() заповнює DataGridView для таблиці Reception
+            }
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            SqlCommand command = new SqlCommand("INSERT INTO [MedicalServices] (OrganizationName, ServiceName, ServiceCost, OrganizationPhone) VALUES (@OrganizationName, @ServiceName, @ServiceCost, @OrganizationPhone)", sqlConnection);
+
+            command.Parameters.AddWithValue("OrganizationName", textBox47.Text);
+            command.Parameters.AddWithValue("ServiceName", textBox48.Text);
+            command.Parameters.AddWithValue("ServiceCost", textBox49.Text);
+            command.Parameters.AddWithValue("OrganizationPhone", textBox50.Text);
+
+            MessageBox.Show(command.ExecuteNonQuery().ToString());
+            AutoFillTable5();
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            SqlCommand command = new SqlCommand("UPDATE MedicalServices SET OrganizationName = @OrganizationName, ServiceName = @ServiceName, ServiceCost = @ServiceCost, OrganizationPhone = @OrganizationPhone WHERE RecordID = @RecordID;", sqlConnection);
+
+            command.Parameters.AddWithValue("OrganizationName", textBox51.Text);
+            command.Parameters.AddWithValue("ServiceName", textBox52.Text);
+            command.Parameters.AddWithValue("ServiceCost", textBox53.Text);
+            command.Parameters.AddWithValue("OrganizationPhone", textBox54.Text);
+            command.Parameters.AddWithValue("RecordID", textBox55.Text);
+
+            MessageBox.Show(command.ExecuteNonQuery().ToString());
+            AutoFillTable5();
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            if (int.TryParse(textBox56.Text, out int recordIdToDelete))
+            {
+                string connectionString = ConfigurationManager.ConnectionStrings["TestDB"].ConnectionString;
+
+                using (SqlConnection sqlConnection = new SqlConnection(connectionString))
+                {
+                    try
+                    {
+                        sqlConnection.Open();
+
+                        string deleteQuery = "DELETE FROM MedicalServices WHERE RecordID = @RecordID;";
+                        using (SqlCommand deleteCommand = new SqlCommand(deleteQuery, sqlConnection))
+                        {
+                            deleteCommand.Parameters.AddWithValue("@RecordID", recordIdToDelete);
+                            int rowsAffected = deleteCommand.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                            {
+                                int maxId = 0;
+                                string maxIdQuery = "SELECT ISNULL(MAX(RecordID), 0) FROM MedicalServices;";
+                                using (SqlCommand maxIdCommand = new SqlCommand(maxIdQuery, sqlConnection))
+                                {
+                                    maxId = (int)maxIdCommand.ExecuteScalar();
+                                }
+
+                                string reseedQuery = $"DBCC CHECKIDENT ('MedicalServices', RESEED, {maxId});";
+                                using (SqlCommand reseedCommand = new SqlCommand(reseedQuery, sqlConnection))
+                                {
+                                    reseedCommand.ExecuteNonQuery();
+                                }
+
+                                MessageBox.Show("Запис успішно видалено.");
+                                AutoFillTable5();
+                                textBox56.Clear();
+                            }
+                            else
+                            {
+                                MessageBox.Show("Запис з таким ID не знайдено.");
+                            }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        MessageBox.Show("Помилка при видаленні: " + ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Будь ласка, введіть коректний числовий ID.");
+            }
+        }
+
+        private void button20_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(textBox57.Text))
+            {
+                AutoFillTable5();
+                return;
+            }
+
+            string searchText = textBox57.Text.Trim();
+            string searchField = comboBox4.SelectedItem?.ToString();
+
+            if (string.IsNullOrEmpty(searchField))
+            {
+                MessageBox.Show("Будь ласка, виберіть поле для пошуку.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string query = "SELECT RecordID, OrganizationName, ServiceName, ServiceCost, OrganizationPhone FROM MedicalServices WHERE ";
+
+            switch (searchField)
+            {
+                case "Назва організації":
+                    query += "OrganizationName LIKE @SearchText";
+                    break;
+                case "Назва послуги":
+                    query += "ServiceName LIKE @SearchText";
+                    break;
+                case "Вартість":
+                    query += "CAST(ServiceCost AS NVARCHAR) LIKE @SearchText";
+                    break;
+                case "Телефон":
+                    query += "OrganizationPhone LIKE @SearchText";
+                    break;
+                case "ID":
+                    if (int.TryParse(searchText, out int searchId))
+                    {
+                        query += "RecordID = @SearchId";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Будь ласка, введіть ціле число для пошуку за ID.", "Помилка введення", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    break;
+                default:
+                    MessageBox.Show("Невідоме поле для пошуку.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+            }
+
+            query += ";";
+
+            try
+            {
+                SqlCommand command = new SqlCommand(query, sqlConnection);
+
+                if (searchField == "ID" && int.TryParse(searchText, out _))
+                {
+                    command.Parameters.AddWithValue("@SearchId", searchText);
+                }
+                else
+                {
+                    command.Parameters.AddWithValue("@SearchText", "%" + searchText + "%");
+                }
+
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                DataTable searchResultTable = new DataTable();
+                adapter.Fill(searchResultTable);
+
+                dataGridView5.DataSource = searchResultTable;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка пошуку: {ex.Message}", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

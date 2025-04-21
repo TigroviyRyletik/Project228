@@ -11,7 +11,11 @@
       <Field Name="button14" Hidden="true" />
       <Field Name="button15" Hidden="true" />
       <Field Name="button16" Hidden="true" />
+      <Field Name="button17" Hidden="true" />
+      <Field Name="button18" Hidden="true" />
+      <Field Name="button19" Hidden="true" />
       <Field Name="button2" Hidden="true" />
+      <Field Name="button20" Hidden="true" />
       <Field Name="button3" Hidden="true" />
       <Field Name="button4" Hidden="true" />
       <Field Name="button5" Hidden="true" />
@@ -22,17 +26,20 @@
       <Field Name="comboBox1" Hidden="true" />
       <Field Name="comboBox2" Hidden="true" />
       <Field Name="comboBox3" Hidden="true" />
+      <Field Name="comboBox4" Hidden="true" />
       <Field Name="components" Hidden="true" />
       <Field Name="dataGridView1" Hidden="true" />
       <Field Name="dataGridView2" Hidden="true" />
       <Field Name="dataGridView3" Hidden="true" />
       <Field Name="dataGridView4" Hidden="true" />
+      <Field Name="dataGridView5" Hidden="true" />
       <Field Name="searchCriteriaComboBox" Hidden="true" />
       <Field Name="tabControl1" Hidden="true" />
       <Field Name="tabPage1" Hidden="true" />
       <Field Name="tabPage2" Hidden="true" />
       <Field Name="tabPage3" Hidden="true" />
       <Field Name="tabPage4" Hidden="true" />
+      <Field Name="tabPage5" Hidden="true" />
       <Field Name="textBox1" Hidden="true" />
       <Field Name="textBox10" Hidden="true" />
       <Field Name="textBox11" Hidden="true" />
@@ -74,14 +81,25 @@
       <Field Name="textBox44" Hidden="true" />
       <Field Name="textBox45" Hidden="true" />
       <Field Name="textBox46" Hidden="true" />
+      <Field Name="textBox47" Hidden="true" />
+      <Field Name="textBox48" Hidden="true" />
+      <Field Name="textBox49" Hidden="true" />
       <Field Name="textBox5" Hidden="true" />
+      <Field Name="textBox50" Hidden="true" />
+      <Field Name="textBox51" Hidden="true" />
+      <Field Name="textBox52" Hidden="true" />
+      <Field Name="textBox53" Hidden="true" />
+      <Field Name="textBox54" Hidden="true" />
+      <Field Name="textBox55" Hidden="true" />
+      <Field Name="textBox56" Hidden="true" />
+      <Field Name="textBox57" Hidden="true" />
       <Field Name="textBox6" Hidden="true" />
       <Field Name="textBox7" Hidden="true" />
       <Field Name="textBox8" Hidden="true" />
       <Field Name="textBox9" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SCCAAAAAASAAQACRFICAAIJCIP07kCEi0HQfQEARRIA=</HashCode>
+      <HashCode>SDCAQAAACSCAQACRFICAAINCIP07kGEi0HQfQHARRIA=</HashCode>
       <FileName>Form1.cs</FileName>
     </TypeIdentifier>
   </Class>
